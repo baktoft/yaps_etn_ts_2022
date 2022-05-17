@@ -37,7 +37,7 @@ library(caTools)
 library(viridis)
 library(yaps)
 library(yapsdata)
-source('../yaps_ETN_helperFuncs.R')
+source('yaps_ETN_helperFuncs.R')
 ```
 
 # Description
@@ -126,7 +126,7 @@ Remember this is a fixed burst interval transmitter (BI = 10 s).
 Let's have a look at the data. Note, this plot only makes sense for transmitters where the burst interval is set at whole seconds (random or not).
 ```{r}
 dat_tow <- detections_synced[tag==5138]
-gps <- fread("../data/hald_gps_test_track.csv")
+gps <- fread("data/hald_gps_test_track.csv")
 
 with(dat_tow, table(hydro_idx))
 ggplot(data=dat_tow) + geom_point(aes(x=eposync, y=eposync-floor(eposync), col=factor(hydro_idx)))
@@ -282,6 +282,7 @@ plotNobs(toa1335_rbi_yaps)
 set.seed(1)
 ping_type <- 'rbi'
 inp1335_rbi <- getInp(toa=toa1335_rbi_yaps, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=NULL)
+
 # We cheat and use fixed initial values to ensure convergence for this specific example. 
 # DO NOT DO THIS when analyseing own data!!!
 inp1335_rbi$inits <- c(-0.5842236,  0.5724419, -0.8182362,  4.9533368)
@@ -355,7 +356,7 @@ Note, that ping_type now is `'pbi'`and we include the BItable in `getInp()`. Eve
 set.seed(1)
 inp1335_kbi <- getInp(toa=toa1335_kbi_yaps, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1335)
 
-yaps1335_kbi <- runYaps(inp1335_kbi, maxIter=500, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
+yaps1335_kbi <- runYaps(inp1335_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
 
 ```
 ### Results
@@ -416,7 +417,7 @@ plotNobs(toa1335_kbi_yaps)
 max_hydro <- 1
 toa1335_kbi_down1 <- downSampleToa(toa1335_kbi_yaps, max_hydro)
 
-inp1335_kbi_down1 <- getInp(toa=toa1335_kbi_down1, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1335)
+inp1335_kbi_down1 <- getInp(toa=toa1335_kbi_down1, hydros=hydros_yaps, E_dist="Mixture", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1335)
 
 yaps1335_kbi_down1 <- runYaps(inp1335_kbi_down1, maxIter=500, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
 
@@ -470,7 +471,7 @@ yaps1335_kbi <- runYaps(inp1335_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, si
 
 Lazy people can just grab it here:
 ```{r}
-load('../data/yaps1335_kbi_fullTrack.rObj')
+load('data/yaps1335_kbi_fullTrack.rObj')
 plotYaps(yaps1335_kbi)
 
 plotYaps(yaps1335_kbi, type="coord_X")
@@ -612,37 +613,38 @@ par(mfrow=c(1,1))
 ### The full track
 The full track can be estimated using this code - will probably take some 5 - 10 minutes.
 ```{r eval=FALSE}
-ping_type <- 'pbi'
-rbi_min <- 60
-rbi_max <- 120
-seq1315 <- hald$burst_seqs$seq1315 # just a long sequence of random numbers...
-dat1315_kbi <- alignBurstSeq(synced_dat=dat1315, burst_seq=seq1315, seq_lng_min=10, rbi_min=rbi_min, rbi_max=rbi_max, plot_diag=TRUE)
-toa1315_kbi_list <- buildToaKnownSeq(seq=seq1315, aligned_dat=dat1315_kbi, hydros=hydros_yaps)
-toa1315_kbi <- toa1315_kbi_list$toa
-seq1315_kbi <- toa1315_kbi_list$seq
-biTable1315 <- seq1315_kbi
-
-ping_1 <- 1
-n_ping <- nrow(toa1315_kbi)
-toa1315_kbi_yaps <- toa1315_kbi[ping_1:(ping_1 + n_ping - 1), ]
-biTable1315 <- seq1315_kbi[ping_1:(ping_1 + n_ping - 1) ]
-plotToa(toa1315_kbi_yaps)
-plotNobs(toa1315_kbi_yaps)
-
-inp1315_kbi <- getInp(toa=toa1315_kbi_yaps, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1315)
-# inp1315_kbi$inits[1] <- 1
-yaps1315_kbi <- runYaps(inp1315_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
+# set.seed(1)
+# ping_type <- 'pbi'
+# rbi_min <- 60
+# rbi_max <- 120
+# seq1315 <- hald$burst_seqs$seq1315 # just a long sequence of random numbers...
+# dat1315_kbi <- alignBurstSeq(synced_dat=dat1315, burst_seq=seq1315, seq_lng_min=10, rbi_min=rbi_min, rbi_max=rbi_max, plot_diag=TRUE)
+# toa1315_kbi_list <- buildToaKnownSeq(seq=seq1315, aligned_dat=dat1315_kbi, hydros=hydros_yaps)
+# toa1315_kbi <- toa1315_kbi_list$toa
+# seq1315_kbi <- toa1315_kbi_list$seq
+# biTable1315 <- seq1315_kbi
+# 
+# ping_1 <- 1
+# n_ping <- nrow(toa1315_kbi)
+# toa1315_kbi_yaps <- toa1315_kbi[ping_1:(ping_1 + n_ping - 1), ]
+# biTable1315 <- seq1315_kbi[ping_1:(ping_1 + n_ping - 1) ]
+# plotToa(toa1315_kbi_yaps)
+# plotNobs(toa1315_kbi_yaps)
+# 
+# inp1315_kbi <- getInp(toa=toa1315_kbi_yaps, hydros=hydros_yaps, E_dist="Mixture", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1315)
+# # inp1315_kbi$inits[1] <- 1
+# yaps1315_kbi <- runYaps(inp1315_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
 
 ```
 
 
 Lazy people can just grab it here:
 ```{r}
-load('../data/yaps1315_kbi_fullTrack.rObj')
-plotYaps(inp1315_kbi, yaps1315_kbi)
+load('data/yaps1315_kbi_fullTrack.rObj')
+plotYaps(yaps1315_kbi)
 
-plotYaps(inp1315_kbi, yaps1315_kbi, type="coord_X")
-plotYaps(inp1315_kbi, yaps1315_kbi, type="coord_Y")
+plotYaps(yaps1315_kbi, type="coord_X")
+plotYaps(yaps1315_kbi, type="coord_Y")
 
 ```
 
@@ -653,18 +655,31 @@ plotYaps(inp1315_kbi, yaps1315_kbi, type="coord_Y")
 # Appendix
 ## Obtaining the sync_model for the `hald` data
 If you try to sync these data (which is encouraged), be aware of impossible sync tag - hydro combos.
-Also note that positions of hydro idx 32 and 70 are uncertain, so they sould be estimated, i.e. removed from the fixed_hydros_idx vector. These settings should give a good sync model
+Also note that positions of hydro idx 32 and 70 are uncertain, so they should be estimated, i.e. removed from the fixed_hydros_idx vector. These settings should give a good sync model
 
 ```{r eval=FALSE}
-	max_epo_diff <- 30
-	min_hydros <- 5
-	time_keeper_idx <- 1
-	fixed_hydros_idx <- 1:70
-	fixed_hydros_idx <- fixed_hydros_idx[!fixed_hydros_idx %in% c(32, 70)]
-	n_offset_day <- 2
-	n_ss_day <- 1
-	inp_sync <- getInpSync(sync_dat, max_epo_diff, min_hydros, time_keeper_idx, fixed_hydros_idx, n_offset_day, n_ss_day, keep_rate=0.2)
-	sync_model <- getSyncModel(inp_sync, silent=TRUE)
+sync_dat <- list(detections = hald$detections, hydros = hald$hydros)
+	
+
+max_epo_diff <- 30
+min_hydros <- 5
+time_keeper_idx <- 1
+fixed_hydros_idx <- 1:70
+fixed_hydros_idx <- fixed_hydros_idx[!fixed_hydros_idx %in% c(32, 70)]
+n_offset_day <- 2
+n_ss_day <- 1
+inp_sync <- getInpSync(sync_dat, max_epo_diff, min_hydros, time_keeper_idx, fixed_hydros_idx, n_offset_day, n_ss_day, keep_rate=25)
+sync_model0 <- getSyncModel(inp_sync, silent=TRUE)
+sync_model1 <- fineTuneSyncModel(sync_model0, eps_threshold = 100)
+	
+# Plot model residuals and model check plots to ensure the synchronization process was successful...
+plotSyncModelResids(sync_model, by='overall')    
+plotSyncModelResids(sync_model, by='quantiles')
+plotSyncModelResids(sync_model, by='sync_tag')      
+plotSyncModelResids(sync_model, by='hydro')         
+
+	
+	
 ```
 
 
@@ -676,7 +691,6 @@ Also note that positions of hydro idx 32 and 70 are uncertain, so they sould be 
 
 
 [yaps_logo]: yaps_logo_hex_100px.png
-[otn_logo]: otn_logo.png
 
 knitr::purl('part3_hald.Rmd', documentation=2)
 
