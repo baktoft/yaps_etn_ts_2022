@@ -19,7 +19,7 @@
 #'   | Part 1 - installation, test and a quick example
 #' ---
 #' <div style="float: right;">
-#'   [![][yaps_logo]](https://github.com/baktoft/yaps)   ![][otn_logo]  
+#'   [![][yaps_logo]](https://github.com/baktoft/yaps)   
 #' </div> 
 #' 
 #' 
@@ -64,7 +64,7 @@ head(ssu1$detections)
 head(ssu1$gps)
 
 #' 
-#' Let's see where we are in the world (mainly included to have an excuse to use the [`leaflet`](https://cran.r-project.org/web/packages/leaflet/index.html) package - really awesome to make quick slippy-maps - code is in the .rmd-file)
+#' Let's see where we are in the world (map made using the [`leaflet`](https://cran.r-project.org/web/packages/leaflet/index.html) package - code is in the .rmd-file)
 ## ----fig.height=25, echo=FALSE, message=FALSE---------------------------------------------------------------------------------------------------------------------
 hydros <- ssu1$hydros
 coordinates(hydros) <- ~x+y
@@ -157,4 +157,5 @@ lines(utm_y~ts, data=ssu1$gps, lty=2)
 #' [yaps_logo]: yaps_logo_hex_100px.png
 #' 
 #' knitr::purl('part1_setupAndTest.Rmd', documentation=2)
+#' 
 #' 

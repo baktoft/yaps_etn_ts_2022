@@ -19,7 +19,7 @@
 #'   | Part 3 - Tracking pike in a large lake
 #' ---
 #' <div style="float: right;">
-#'   [![][yaps_logo]](https://github.com/baktoft/yaps)   ![][otn_logo]  
+#'   [![][yaps_logo]](https://github.com/baktoft/yaps) 
 #' </div>
 #' 
 #' 
@@ -41,7 +41,7 @@ source('yaps_ETN_helperFuncs.R')
 
 #' 
 #' # Description
-#' These data are included in the `yaps` package (run `?hald` for info). Data were collected as part of a larger study including brown trout (smolt and adult), pike and eel in the Danish lake Hald. Lake Hald is large and deep (by Danish standards; 3.42 km^2^;  max depth 34 m), so depth is relevant in order to get best possible track estimation. A total of 70 hydrophones (Thelma TBR700) were deployed to cover the entire lake. The data set contains a single week of detections including a single tow track and tracks of a few pike (*Esox lucius*).  
+#' These data are included in the `yaps` package (run `?hald` for info). Data were collected as part of a larger study including brown trout (smolt and adult), pike and eel in the Danish lake Hald. Lake Hald is large and deep (by Danish standards; 3.42 km^2^;  max depth 34 m), so depth is relevant in order to get best possible track estimation (but ignored here for simplicity). A total of 70 hydrophones (Thelma TBR700) were deployed to cover the entire lake. The data set contains a single week of detections including a single tow track and tracks of a few pike (*Esox lucius*).  
 #' 
 #' This example focus on:
 #' 
@@ -52,7 +52,7 @@ source('yaps_ETN_helperFuncs.R')
 #' An appropriate sync_model is included in the package and will be used for this demonstration to save time. Code to obtain this sync_model can be found in the appendix below.  
 #' 
 #' ## A look at the data
-#' Notice the object `burst_seqs` - these are vectors of intervals between consequtive pings from the two transmitters included in this example data. Not all manufacturers are willing to provide these data to their users even though it is just a stream of random numbers - luckily Thelma Biotel are.  
+#' Notice the object `burst_seqs` - these are vectors of intervals between consequtive pings from the two transmitters included in this example data. Such data is not available from all manufacturers.  
 #' `data.table`s `hydros` and `detections` are as usual.  
 #' The object `sync_model` contains the already optimized synchronization model applicable for these data.
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ str(hald$burst_seqs)
 #' 
 #' 
 #' ## The study site
-#' Study site geometry is rather complex. (Code to make the map is in the .Rmd file).  
+#' Study site geometry is rather complex. .  
 #' Note, how a sequential synchronization process in this case could lead to error propagation.
 #' Also note, there are lots of impossible sync tag - hydro combinations.
 ## ----echo=FALSE, eval=TRUE----------------------------------------------------------------------------------------------------------------------------------------
@@ -243,9 +243,11 @@ par(mfrow=c(1,1))
 #' One reason we can estimate a decent track even with max_hydro = 1 is, that multiple hydrophones are detecting the signals. It will, of course, not work if there only was a single hydrophone in the water. 
 #' 
 #' 
-#' ## Tag 1335 - pike - random BI sequence - assuming **secret** sequence
+#' ## Tag 1335 - pike - random BI sequence - assuming **unknown** sequence
 #' Remember this transmitter is a random burst interval (BI 10 - 30 s), but we know the burst sequence. However, first we assume, we don't and treat it like a random BI transmitter with unknown burst sequence.
+#' 
 #' ### Compiling the data
+#' 
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 dat1335 <- detections_synced[tag==1335]
 ping_type <- 'rbi'
@@ -265,7 +267,9 @@ plotToa(toa1335_rbi)
 plotNobs(toa1335_rbi)
 
 
+#' 
 #' More than 30.000 pings will take pretty long time to process, so we use a small a subset of the data.
+#' 
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ping_1 <- 501
 n_ping <- 1000
@@ -284,7 +288,7 @@ ping_type <- 'rbi'
 inp1335_rbi <- getInp(toa=toa1335_rbi_yaps, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=NULL)
 
 # We cheat and use fixed initial values to ensure convergence for this specific example. 
-# DO NOT DO THIS when analyseing own data!!!
+# DO NOT DO THIS when analysing own data!!!
 inp1335_rbi$inits <- c(-0.5842236,  0.5724419, -0.8182362,  4.9533368)
 yaps1335_rbi <- runYaps(inp1335_rbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
 
@@ -407,8 +411,11 @@ plotYaps(yaps1335_kbi_down3, xlim=c(520500, 521500), ylim=c(6247400, 6247800))
 plotYaps(yaps1335_kbi_down3, type="coord_X")
 plotYaps(yaps1335_kbi_down3, type="coord_Y")
 
+#' 
 #' ### Tag 1335 pike - downsampling max_hydro <- 1
+#' 
 #' Trying at very low data density
+#' 
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 set.seed(1)
 ping_type <- 'pbi'
@@ -428,13 +435,13 @@ plotYaps(yaps1335_kbi_down1, type="coord_X")
 plotYaps(yaps1335_kbi_down1, type="coord_Y")
 
 #' 
-#' ### Comparing secret vs known BI sequences
+#' ### Comparing unknown vs known BI sequences
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 par(mfrow=c(2,3))
 ylim=c(0,5)
-plot(yaps1335_kbi$plsd$X, type="h", ylim=ylim)
-plot(yaps1335_kbi_down1$plsd$X, type="h", ylim=ylim)
-plot(yaps1335_rbi$plsd$X, type="h", ylim=ylim)
+plot(yaps1335_kbi$plsd$X, type="h", ylim=ylim, main="SD all")
+plot(yaps1335_kbi_down1$plsd$X, type="h", ylim=ylim, main = "SD nObs <= 1")
+plot(yaps1335_rbi$plsd$X, type="h", ylim=ylim, main="SD rbi")
 plot(yaps1335_kbi$plsd$Y, type="h", ylim=ylim)
 plot(yaps1335_kbi_down1$plsd$Y, type="h", ylim=ylim)
 plot(yaps1335_rbi$plsd$Y, type="h", ylim=ylim)
@@ -507,6 +514,7 @@ sum(nobs>=3) / length(nobs)
 #' 
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # < 10.000 pings is doable, but we will sub sample to save time
+set.seed(1)
 ping_1 <- 1
 n_ping <- 1000
 toa1315_rbi_yaps <- toa1315_rbi[ping_1:(ping_1 + n_ping - 1), ]
@@ -517,9 +525,6 @@ sum(nobs>=3) / length(nobs)
 
 # a bit more challenging than 1335
 
-
-
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get inp to feed into YAPS and run YAPS
 inp1315_rbi <- getInp(toa=toa1315_rbi_yaps, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=NULL)
 # inp1315_rbi$inits[1] <- 1
@@ -584,6 +589,7 @@ sum(getNobs(toa1315_kbi_yaps) >= 3) / nrow(toa1315_kbi_yaps)
 #' 
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get inp to feed into YAPS and run YAPS
+set.seed(1)
 inp1315_kbi <- getInp(toa=toa1315_kbi_yaps, hydros=hydros_yaps, E_dist="t", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1315)
 # inp1315_kbi$inits[1] <- 1
 yaps1315_kbi <- runYaps(inp1315_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
@@ -613,27 +619,27 @@ par(mfrow=c(1,1))
 #' ### The full track
 #' The full track can be estimated using this code - will probably take some 5 - 10 minutes.
 ## ----eval=FALSE---------------------------------------------------------------------------------------------------------------------------------------------------
-## # set.seed(1)
-## # ping_type <- 'pbi'
-## # rbi_min <- 60
-## # rbi_max <- 120
-## # seq1315 <- hald$burst_seqs$seq1315 # just a long sequence of random numbers...
-## # dat1315_kbi <- alignBurstSeq(synced_dat=dat1315, burst_seq=seq1315, seq_lng_min=10, rbi_min=rbi_min, rbi_max=rbi_max, plot_diag=TRUE)
-## # toa1315_kbi_list <- buildToaKnownSeq(seq=seq1315, aligned_dat=dat1315_kbi, hydros=hydros_yaps)
-## # toa1315_kbi <- toa1315_kbi_list$toa
-## # seq1315_kbi <- toa1315_kbi_list$seq
-## # biTable1315 <- seq1315_kbi
-## #
-## # ping_1 <- 1
-## # n_ping <- nrow(toa1315_kbi)
-## # toa1315_kbi_yaps <- toa1315_kbi[ping_1:(ping_1 + n_ping - 1), ]
-## # biTable1315 <- seq1315_kbi[ping_1:(ping_1 + n_ping - 1) ]
-## # plotToa(toa1315_kbi_yaps)
-## # plotNobs(toa1315_kbi_yaps)
-## #
-## # inp1315_kbi <- getInp(toa=toa1315_kbi_yaps, hydros=hydros_yaps, E_dist="Mixture", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1315)
-## # # inp1315_kbi$inits[1] <- 1
-## # yaps1315_kbi <- runYaps(inp1315_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
+## set.seed(1)
+## ping_type <- 'pbi'
+## rbi_min <- 60
+## rbi_max <- 120
+## seq1315 <- hald$burst_seqs$seq1315 # just a long sequence of random numbers...
+## dat1315_kbi <- alignBurstSeq(synced_dat=dat1315, burst_seq=seq1315, seq_lng_min=10, rbi_min=rbi_min, rbi_max=rbi_max, plot_diag=TRUE)
+## toa1315_kbi_list <- buildToaKnownSeq(seq=seq1315, aligned_dat=dat1315_kbi, hydros=hydros_yaps)
+## toa1315_kbi <- toa1315_kbi_list$toa
+## seq1315_kbi <- toa1315_kbi_list$seq
+## biTable1315 <- seq1315_kbi
+## 
+## ping_1 <- 1
+## n_ping <- nrow(toa1315_kbi)
+## toa1315_kbi_yaps <- toa1315_kbi[ping_1:(ping_1 + n_ping - 1), ]
+## biTable1315 <- seq1315_kbi[ping_1:(ping_1 + n_ping - 1) ]
+## plotToa(toa1315_kbi_yaps)
+## plotNobs(toa1315_kbi_yaps)
+## 
+## inp1315_kbi <- getInp(toa=toa1315_kbi_yaps, hydros=hydros_yaps, E_dist="Mixture", n_ss=5, pingType=ping_type, rbi_min=rbi_min, rbi_max=rbi_max, sdInits=1, ss_data_what="est", ss_data=0, biTable=biTable1315)
+## # inp1315_kbi$inits[1] <- 1
+## yaps1315_kbi <- runYaps(inp1315_kbi, maxIter=1000, getPlsd=TRUE, getRep=TRUE, silent=TRUE)
 ## 
 
 #' 
