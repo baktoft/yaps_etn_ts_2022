@@ -91,12 +91,17 @@ plotSyncModelResids(sync_model, by='overall')
 plotSyncModelResids(sync_model, by='quantiles')
 plotSyncModelResids(sync_model, by='sync_tag')
 plotSyncModelResids(sync_model, by='hydro')
+plotSyncModelResids(sync_model, by = 'temporal_hydro')
+plotSyncModelResids(sync_model, by = 'temporal_sync_tag')
 
 # # # The following checks might throw an error - looking into it...
-plotSyncModelCheck(sync_model, by="sync_bin_sync")  
-plotSyncModelCheck(sync_model, by="sync_bin_hydro") 
-plotSyncModelCheck(sync_model, by="sync_tag")       
-plotSyncModelCheck(sync_model, by="hydro") 
+plotSyncModelCheck(sync_model, by = "hydro")
+plotSyncModelCheck(sync_model, by = "sync_tag")
+plotSyncModelCheck(sync_model, by = "sync_bin_sync")
+plotSyncModelCheck(sync_model, by = "sync_bin_hydro")
+plotSyncModelCheck(sync_model, by = "sync_bin_sync_smooth")
+plotSyncModelCheck(sync_model, by = "sync_bin_hydro_smooth")
+
 ```
 
 
@@ -679,10 +684,13 @@ sync_model0 <- getSyncModel(inp_sync, silent=TRUE)
 sync_model1 <- fineTuneSyncModel(sync_model0, eps_threshold = 100)
 	
 # Plot model residuals and model check plots to ensure the synchronization process was successful...
-plotSyncModelResids(sync_model, by='overall')    
-plotSyncModelResids(sync_model, by='quantiles')
-plotSyncModelResids(sync_model, by='sync_tag')      
-plotSyncModelResids(sync_model, by='hydro')         
+plotSyncModelResids(sync_model, by = 'overall')    
+plotSyncModelResids(sync_model, by = 'quantiles')
+plotSyncModelResids(sync_model, by = 'sync_tag')      
+plotSyncModelResids(sync_model, by = 'hydro')  
+plotSyncModelResids(sync_model, by = 'temporal_hydro')
+plotSyncModelResids(sync_model, by = 'temporal_sync_tag')
+
 
 	
 	

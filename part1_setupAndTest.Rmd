@@ -100,16 +100,13 @@ inp_sync <- getInpSync(sync_dat=ssu1, max_epo_diff, min_hydros, time_keeper_idx,
 sync_model <- getSyncModel(inp_sync, silent=TRUE)
 
 # Plot model residuals and model check plots to ensure the synchronization process was successful...
-plotSyncModelResids(sync_model, by='overall')    
+plotSyncModelResids(sync_model, by='overall')
 plotSyncModelResids(sync_model, by='quantiles')
-plotSyncModelResids(sync_model, by='sync_tag')      
-plotSyncModelResids(sync_model, by='hydro')         
+plotSyncModelResids(sync_model, by='sync_tag')
+plotSyncModelResids(sync_model, by='hydro')
+plotSyncModelResids(sync_model, by = 'temporal_hydro')
+plotSyncModelResids(sync_model, by = 'temporal_sync_tag')
 
-# # # The following checks might throw an error - looking into it...
-# plotSyncModelCheck(sync_model, by="sync_bin_sync")  
-# plotSyncModelCheck(sync_model, by="sync_bin_hydro") 
-# plotSyncModelCheck(sync_model, by="sync_tag")       
-# plotSyncModelCheck(sync_model, by="hydro")          
 
 # Apply the synchronization model to all data
 detections_synced <- applySync(toa=ssu1$detections, hydros=ssu1$hydros, sync_model)
